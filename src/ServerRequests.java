@@ -8,22 +8,30 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.RunnableFuture;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  * Servlet implementation class ServerRequests
  */
 @WebServlet("/ServerRequests")
-public class ServerRequests extends HttpServlet {
+public class ServerRequests extends HttpServlet implements Runnable {
+	
+	
 	int start_time ;
 	 int end_time;
 	 int responsetime;
+	 
 		static Map<String,Integer> serverMap= new LinkedHashMap<String,Integer>();
 		//static Map<String,Integer> intialserverMap= new HashMap<String,Integer>();
+		private final static Logger LOGGER= Logger.getLogger(ServerRequests.class.getName());
 		String server_nm ="192.11.12";
 		int total_load = 0;
 		Integer i=3;
@@ -42,15 +50,24 @@ public class ServerRequests extends HttpServlet {
 			for (Map.Entry mapElement : serverMap.entrySet()) { //int server_capacity
 				
 	        total_load =total_load + ((int)mapElement.getValue());
+	        LOGGER.log(Level.FINE,"checking the server load");
 			 }
 		return total_load;
 		}
 		
 		protected void doPost(HttpServletRequest request,
 				HttpServletResponse response) throws ServletException, IOException {
+			Runnable runnable = new ServerRequests();
+			Thread thread = new Thread(runnable);
+			thread.start();
 			response.setContentType("text/html");
 		   start_time =(int) System.currentTimeMillis();
 			  int count =Integer.parseInt(request.getParameter("server_count"));
+			  LOGGER.log(Level.FINE,"number of servers active"+count);
+			  try {
+			 Thread.currentThread().sleep(1000);
+			  }
+			  catch(InterruptedException e) {}
 			 System.out.println("server count" +count);
 			 addServer(count);
 			 getServer(count);
@@ -58,8 +75,12 @@ public class ServerRequests extends HttpServlet {
 			 end_time =(int) System.currentTimeMillis();
 			 
 			 responsetime =end_time-start_time;
+			 try {
+			 Thread.currentThread().sleep(1000);
+			 }catch(InterruptedException e) {}
+			 LOGGER.log(Level.FINE,"response time"+responsetime);
 			 System.out.println ("total time taken " + responsetime);
-			
+			thread.stop();
 			/*
 			 * HttpSession session =request.getSession(true); String count =(String)
 			 * session.getAttribute("server_count"); System.out.println("server count"
@@ -69,7 +90,9 @@ public class ServerRequests extends HttpServlet {
 		
 		public  void getServer(int count)
 		{
-			
+			Runnable runnable = new ServerRequests();
+			Thread thread = new Thread(runnable);
+			thread.start();
 			boolean flag=true;
 			int counter; int index =0;
 			Map<String,Integer> latestServerMap= new HashMap<String,Integer>();
@@ -82,7 +105,13 @@ public class ServerRequests extends HttpServlet {
 	         String server_name =serverList.get(index);
 	          int server_capacity=serverMap.get(server_name);
 	          if(count <server_capacity)
-	           {
+	 
+	           {  
+	        	  try {
+	     			 Thread.currentThread().sleep(1000);
+	     			  }
+	     			  catch(InterruptedException e) {}
+	        	  LOGGER.log(Level.ALL," server assigned "+ server_name);
 	        	  System.out.println(" server assigned "+ server_name);
 	        	   serverMap.replace(server_name,Math.abs(server_capacity - count)); 
 	        	 flag =false;
@@ -100,12 +129,17 @@ public class ServerRequests extends HttpServlet {
 	        	int temp =server_capacity; //30
 	        	if(difference>=0 && count >server_capacity) {
 	        		serverMap.replace((String)mapElement.getKey(),temp-server_capacity);//30;
+	        		try {
+	       			 Thread.currentThread().sleep(1000);
+	       			  }
+	       			  catch(InterruptedException e) {}
+	        		LOGGER.log(Level.FINE,"Server Allocated " +mapElement.getKey() + " " +  mapElement.getValue());
 	        		System.out.println("Server Allocated " +mapElement.getKey() + " " +  mapElement.getValue());
 	        	}
 	        	else if(count <= server_capacity) 
 	        	{     
 	        		serverMap.replace((String)mapElement.getKey(),server_capacity-count); //30;
-	   		         
+	   		         LOGGER.log(Level.FINE,"Server Allocated "+mapElement.getKey() + " " +  mapElement.getValue());
 	        		System.out.println("Server Allocated "+mapElement.getKey() + " " +  mapElement.getValue());
 	        		
 	        	}
@@ -115,6 +149,7 @@ public class ServerRequests extends HttpServlet {
 	       
 	         System.out.println("Servers being used :");
 	         displayServerDetails();
+	         thread.stop();
 	         
 		}
 		//if requests more than current server capacity, add new server
@@ -130,14 +165,15 @@ public class ServerRequests extends HttpServlet {
 				{
 				 //60-150 =90
 				if (difference <= max_threshold_perserver) //90<30 ,60<30
-				{ 
+				{   LOGGER.log(Level.ALL,"capacity available in new server added");
 					serverMap.put(server_nm.concat(i.toString()),difference);
 					flag =false;
 				}
 				else 
 				{ 
 						int capacity_created= Math.abs(max_threshold_perserver -difference); //90-30 =60 ,30-60 =30
-				       serverMap.put(server_nm.concat(i.toString()),max_threshold_perserver); //30
+						LOGGER.log(Level.ALL,"capacity unavailable in new server added");
+						serverMap.put(server_nm.concat(i.toString()),max_threshold_perserver); //30
 				       difference =capacity_created; //60,30
 						
 					}
@@ -158,6 +194,7 @@ public class ServerRequests extends HttpServlet {
 		        for(String k:keys){
 		        	int capacity=serverMap.get(k);
 		        	if(count <total_load- capacity) {
+		        		LOGGER.log(Level.ALL,"Remove server");
 		        		serverMap.remove(k);
 		        	}
 		      
@@ -172,10 +209,17 @@ public class ServerRequests extends HttpServlet {
 		        System.out.println (mapElement.getKey() + " " + mapElement.getValue());
 				 }
 		}
+		
 	 
 		public static void main(String[] args) {
 			// TODO Auto-generated method stub
+			
 
+		}
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			System.out.println("MY class is running");
 		}
 
 }
