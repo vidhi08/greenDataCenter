@@ -25,7 +25,7 @@ public class ServerRequests extends HttpServlet {
 		static Map<String,Integer> serverMap= new LinkedHashMap<String,Integer>();
 		//static Map<String,Integer> intialserverMap= new HashMap<String,Integer>();
 		String server_nm ="192.11.12";
-		// hello
+		// hello added
 		int total_load = 0;
 		Integer i=3;
 		static {
