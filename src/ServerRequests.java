@@ -239,6 +239,8 @@ public class ServerRequests extends HttpServlet implements Runnable {
 		        System.out.println(" Server Deleted ");
 		        displayServerDetails();
 		        thread.stop();
+		        
+		        
 			}
 		}
 		public void displayServerDetails()
