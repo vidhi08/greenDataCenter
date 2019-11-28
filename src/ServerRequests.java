@@ -99,9 +99,6 @@ public class ServerRequests extends HttpServlet implements Runnable {
 		
 		public  void getServer(int count)
 		{
-			Runnable runnable = new ServerRequests();
-			Thread thread = new Thread(runnable);
-			thread.start();
 			System.out.println(temperature);
 			boolean flag=true;
 			int counter; int index =0;
@@ -119,10 +116,6 @@ public class ServerRequests extends HttpServlet implements Runnable {
 	          if(count <server_capacity)
 	 
 	           {  
-	        	  try {
-	     			 Thread.currentThread().sleep(1000);
-	     			  }
-	     			  catch(InterruptedException e) {}
 	        	  LOGGER.log(Level.ALL," server assigned "+ server_name);
 	        	  System.out.println(" server assigned "+ server_name);
 	        	   serverMap.replace(server_name,Math.abs(server_capacity - count)); 
@@ -142,10 +135,6 @@ public class ServerRequests extends HttpServlet implements Runnable {
 	        	int temp =server_capacity; //30
 	        	if(difference>=0 && count >server_capacity) {
 	        		serverMap.replace((String)mapElement.getKey(),temp-server_capacity);//30;
-	        		try {
-	       			 Thread.currentThread().sleep(1000);
-	       			  }
-	       			  catch(InterruptedException e) {}
 	        		LOGGER.log(Level.FINE,"Server Allocated " +mapElement.getKey() + " " +  mapElement.getValue());
 	        		System.out.println("Server Allocated " +mapElement.getKey() + " " +  mapElement.getValue());
 	        	}
@@ -169,7 +158,6 @@ public class ServerRequests extends HttpServlet implements Runnable {
 	       
 	         System.out.println("Servers being used :");
 	         displayServerDetails();
-	         thread.stop();
 	         
 		}
 		//if requests more than current server capacity, add new server
