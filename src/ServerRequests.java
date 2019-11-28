@@ -139,6 +139,10 @@ public class ServerRequests extends HttpServlet implements Runnable {
 	        	else if(count <= server_capacity) 
 	        	{     
 	        		serverMap.replace((String)mapElement.getKey(),server_capacity-count); //30;
+	        		try {
+		       			 Thread.currentThread().sleep(1000);
+		       			  }
+		       			  catch(InterruptedException e) {}
 	   		         LOGGER.log(Level.FINE,"Server Allocated "+mapElement.getKey() + " " +  mapElement.getValue());
 	        		System.out.println("Server Allocated "+mapElement.getKey() + " " +  mapElement.getValue());
 	        		
@@ -146,6 +150,10 @@ public class ServerRequests extends HttpServlet implements Runnable {
 	        	count =difference ;//20
 	        	}
 	        }
+	        try {
+      			 Thread.currentThread().sleep(1000);
+      			  }
+      			  catch(InterruptedException e) {}
 	       
 	         System.out.println("Servers being used :");
 	         displayServerDetails();
@@ -156,6 +164,9 @@ public class ServerRequests extends HttpServlet implements Runnable {
 		 // if request less than current server capacity , remove the servers.
 		public void addServer(int count)
 		{  
+			Runnable runnable = new ServerRequests();
+			Thread thread = new Thread(runnable);
+			thread.start();
 			boolean flag =true;
 			int max_threshold_perserver =30;
 			if(count > total_load)  //
@@ -165,13 +176,23 @@ public class ServerRequests extends HttpServlet implements Runnable {
 				{
 				 //60-150 =90
 				if (difference <= max_threshold_perserver) //90<30 ,60<30
-				{   LOGGER.log(Level.ALL,"capacity available in new server added");
+					
+				{   
+					try {
+		       			 Thread.currentThread().sleep(1000);
+		       			  }
+		       			  catch(InterruptedException e) {}
+					LOGGER.log(Level.ALL,"capacity available in new server added");
 					serverMap.put(server_nm.concat(i.toString()),difference);
 					flag =false;
 				}
 				else 
 				{ 
 						int capacity_created= Math.abs(max_threshold_perserver -difference); //90-30 =60 ,30-60 =30
+						try {
+			       			 Thread.currentThread().sleep(1000);
+			       			  }
+			       			  catch(InterruptedException e) {}
 						LOGGER.log(Level.ALL,"capacity unavailable in new server added");
 						serverMap.put(server_nm.concat(i.toString()),max_threshold_perserver); //30
 				       difference =capacity_created; //60,30
@@ -179,35 +200,60 @@ public class ServerRequests extends HttpServlet implements Runnable {
 					}
 				i++;
 				}
+				try {
+	       			 Thread.currentThread().sleep(1000);
+	       			  }
+	       			  catch(InterruptedException e) {}
 				System.out.println("new Server added ");
 				
 				displayServerDetails();
+				thread.stop();
 			}
 			
 			
 		}
 		public void deleteServer (int count)
 		{
+			Runnable runnable = new ServerRequests();
+			Thread thread = new Thread(runnable);
+			thread.start();
 			if(count <total_load) 
 			{
 				Set<String> keys = serverMap.keySet();
 		        for(String k:keys){
 		        	int capacity=serverMap.get(k);
 		        	if(count <total_load- capacity) {
+		        		try {
+			       			 Thread.currentThread().sleep(1000);
+			       			  }
+			       			  catch(InterruptedException e) {}
 		        		LOGGER.log(Level.ALL,"Remove server");
 		        		serverMap.remove(k);
 		        	}
 		      
 		        }
+		        try {
+	       			 Thread.currentThread().sleep(1000);
+	       			  }
+	       			  catch(InterruptedException e) {}
 		        System.out.println(" Server Deleted ");
 		        displayServerDetails();
+		        thread.stop();
 			}
 		}
 		public void displayServerDetails()
-		{
+		{ 
+			Runnable runnable = new ServerRequests();
+			Thread thread = new Thread(runnable);
+			thread.start();
+			try {
+      			 Thread.currentThread().sleep(1000);
+      			  }
+      			  catch(InterruptedException e) {}
 			for (Map.Entry mapElement : serverMap.entrySet()) { //int server_capacity
-		        System.out.println (mapElement.getKey() + " " + mapElement.getValue());
+				System.out.println (mapElement.getKey() + " " + mapElement.getValue());
 				 }
+			thread.stop();
 		}
 		
 	 
