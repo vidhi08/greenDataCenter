@@ -79,7 +79,6 @@ public class ServerRequests extends HttpServlet implements Runnable {
 			 System.out.println("server count" +count);
 			 addServer(count);
 			 getServer(count);
-			 displayServerDetails();
 			 end_time =(int) System.currentTimeMillis();
 			 
 			 responsetime =end_time-start_time;
@@ -242,10 +241,7 @@ public class ServerRequests extends HttpServlet implements Runnable {
 		
 	 
 		public static void main(String[] args) {
-			ServerRequests test = new ServerRequests();
-			test.getServer(50);
-			assert(serverMap.size() == 2) : "Error";
-			assert(temperature == 30) : "Error";
+			
 		}
 		@Override
 		public void run() {
