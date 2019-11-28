@@ -31,7 +31,7 @@ public class ServerRequests extends HttpServlet implements Runnable {
 	Instant end_time = Instant.now();
     Duration responsetime;
     int max_threshold_perserver = 30;
-    HashMap<String, String> serverObject = new HashMap<>(); 
+    HashMap<String, String> serverObject = new HashMap<>();
 
     static Map < String, Integer > serverMap = new LinkedHashMap < String, Integer > ();
     //static Map<String,Integer> intialserverMap= new HashMap<String,Integer>();
