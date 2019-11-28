@@ -240,7 +240,6 @@ public class ServerRequests extends HttpServlet implements Runnable {
 		        displayServerDetails();
 		        thread.stop();
 		        
-		        
 			}
 		}
 		public void displayServerDetails()
