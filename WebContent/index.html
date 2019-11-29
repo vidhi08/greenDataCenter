@@ -5,12 +5,17 @@
 <body style="background-color:powderblue;">
 <style>
 .container{
-    width: 100%;
+    width: 50%;
     border-radius: 10px;
     background-color: #fff;
-    position: relative;
+    position: absolute;
     display: block;
-    padding-bottom: 33px
+    padding-top: 60px;
+    padding-bottom: 33px;
+    display: block;
+    margin-top:60px;
+   margin-left: 300px;
+   text-align: center;
 }
 .form-title {
    line-height: 1.2;
@@ -20,19 +25,37 @@
     font-size: 30px;
     padding-bottom: 30px;
 }
+.form-btn {
+   padding: 15px 15px 15px 15px;
+   font-size: 18px;
+   line-height: 1.2;
+   text-transform: uppercase;
+   margin-top: 50px;
+    
+}
+.form-request {
+    font-size: 24px;
+    text-transform: uppercase;
+    margin-top: 50px;
+}
+input[type=text] {
+  position: relative;
+  padding: 12px 20px;
+  margin: 20px 0;
+  display: inline-block;
+  border: 2px solid #000;
+  box-sizing: border-box;
 </style>
  <span class="form-title">Green Data Center</span>
  
- <div class= "container" align="center">
-<form name ="getServerNumber" method ="POST" action ="getRequest">
-Enter the number of server requests needed :
-<input Type ="text" name ="server_count"><br>
-
-<input type="Submit" value ="Submit"> 
-
+ <div class= "container" >
+<form  name ="getServerNumber" method ="POST" action ="getRequest">
+<label class= "form-request"> Enter the number of server requests :</label> <br>
+<input Type ="text" name ="server_count" class = "input-box"><br>
+<button class="form-btn" type="button">
+	Submit
+</button>
 </form>
 </div>
 </body>
-
-
 </html>
