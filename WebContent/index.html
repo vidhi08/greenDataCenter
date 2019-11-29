@@ -1,16 +1,71 @@
 <html>
 
-<title></title><head>
+<title>Green Data Center</title><head>
 </head>
-<body>
-<form name ="getServerNumber" method ="POST" action ="getRequest">
-Enter the number of server requests 
-<input Type ="text" name ="server_count"><br>
+<body >
+<style>
+body {
+   background-image: url('image/bg-04.jpg');
+   background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    position: relative;
+   
+}
+.container{
+    width: 50%;
+    border-radius: 10px;
+    background-color: #fff;
+    position: relative;
+    display: block;
+    padding-top: 70px;
+    padding-bottom: 33px;
+    display: block;
+    margin-top:60px;
+    margin-left: 300px;
+    text-align: center;
+    
+}
+.form-title {
+    line-height: 1.2;
+    text-align: center;
+    text-transform: uppercase;
+    display: block;
+    font-size: 50px;
+    padding-bottom: 30px;
+}
+.form-btn {
+   padding: 15px 15px 15px 15px;
+   font-size: 18px;
+   line-height: 1.2;
+   text-transform: uppercase;
+   margin-top: 50px;
+    
+}
+.form-request {
+    font-size: 24px;
+    text-transform: uppercase;
+    margin-top: 50px;
+}
+input[type=text] {
+  position: relative;
+  padding: 12px 20px;
+  margin: 20px 0;
+  display: inline-block;
+  border: 2px solid #000;
+  box-sizing: border-box;
+</style>
 
-<input type="Submit" value ="Submit"> 
-
+ <span class="form-title">Green Data Center</span>
+ 
+ <div class= "container" >
+<form  name ="getServerNumber" method ="POST" action ="getRequest">
+<label class= "form-request"> Enter the number of server requests :</label> <br>
+<input Type ="text" name ="server_count" class = "input-box"><br>
+<button class="form-btn" type="button">
+	Submit
+</button>
 </form>
+</div>
 </body>
-
-
 </html>
