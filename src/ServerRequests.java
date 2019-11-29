@@ -1,5 +1,3 @@
-
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,24 +6,35 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.RunnableFuture;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  * Servlet implementation class ServerRequests
  */
 @WebServlet("/ServerRequests")
-public class ServerRequests extends HttpServlet {
+public class ServerRequests extends HttpServlet implements Runnable {
+	
+	ArrayList<String> stack = new ArrayList<String>();
+	static int temperature = 20;
+	static int maximum_temp = 50; //once this point is reached, turn on the cooling system
+	static int minimum_temp = 20; //once this point is reached, turn off the cooling system
+	
 	int start_time ;
 	 int end_time;
 	 int responsetime;
+	 
 		static Map<String,Integer> serverMap= new LinkedHashMap<String,Integer>();
 		//static Map<String,Integer> intialserverMap= new HashMap<String,Integer>();
-		String server_nm ="192.11.12";
-		// hello added
+		private final static Logger LOGGER= Logger.getLogger(ServerRequests.class.getName());
+		String server_nm ="192.11.12.1.";
 		int total_load = 0;
 		Integer i=3;
 		static {
@@ -43,24 +52,46 @@ public class ServerRequests extends HttpServlet {
 			for (Map.Entry mapElement : serverMap.entrySet()) { //int server_capacity
 				
 	        total_load =total_load + ((int)mapElement.getValue());
+	        LOGGER.log(Level.FINE,"checking the server load");
 			 }
 		return total_load;
 		}
 		
 		protected void doPost(HttpServletRequest request,
 				HttpServletResponse response) throws ServletException, IOException {
+			Runnable runnable = new ServerRequests();
+			Thread thread = new Thread(runnable);
+			thread.start();
 			response.setContentType("text/html");
 		   start_time =(int) System.currentTimeMillis();
 			  int count =Integer.parseInt(request.getParameter("server_count"));
+			  LOGGER.log(Level.FINE,"number of servers active"+count);
+			  try {
+			 Thread.currentThread().sleep(1000);
+			  }
+			  catch(InterruptedException e) {
+				  e.printStackTrace();
+			  }
+			 for (Integer i = 0; i < count; i++) {
+				 stack.add("Job " + i.toString());
+			 }
+			 System.out.println(count + " jobs on the stack");
 			 System.out.println("server count" +count);
 			 addServer(count);
 			 getServer(count);
-			 displayServerDetails();
 			 end_time =(int) System.currentTimeMillis();
 			 
 			 responsetime =end_time-start_time;
-			 System.out.println ("total time taken " + responsetime);
-			
+			 for (Integer i = count-1; i > -1; i--) {
+				 stack.remove(i);
+			 }
+			 System.out.println("Stack empty");
+			 try {
+			 Thread.currentThread().sleep(1000);
+			 }catch(InterruptedException e) {}
+			 LOGGER.log(Level.FINE,"response time"+responsetime +"milliseconds");
+			 
+			thread.stop();
 			/*
 			 * HttpSession session =request.getSession(true); String count =(String)
 			 * session.getAttribute("server_count"); System.out.println("server count"
@@ -70,7 +101,10 @@ public class ServerRequests extends HttpServlet {
 		
 		public  void getServer(int count)
 		{
-			
+			Runnable runnable = new ServerRequests();
+			Thread thread = new Thread(runnable);
+			thread.start();
+			System.out.println(temperature);
 			boolean flag=true;
 			int counter; int index =0;
 			Map<String,Integer> latestServerMap= new HashMap<String,Integer>();
@@ -80,17 +114,26 @@ public class ServerRequests extends HttpServlet {
 	        serverList.addAll(keySet);
 	        counter=serverList.size();
 	        while (counter!=0) {
+	        	
 	         String server_name =serverList.get(index);
+	         if (serverMap.containsKey(server_name)) { //if null, it has been removed, so no need to check any further
 	          int server_capacity=serverMap.get(server_name);
 	          if(count <server_capacity)
-	           {
+	 
+	           {  
+	        	  try {
+	     			 Thread.currentThread().sleep(1000);
+	     			  }
+	     			  catch(InterruptedException e) {}
+	        	  LOGGER.log(Level.ALL," server assigned "+ server_name);
 	        	  System.out.println(" server assigned "+ server_name);
 	        	   serverMap.replace(server_name,Math.abs(server_capacity - count)); 
 	        	 flag =false;
 	        	 deleteServer(count);
 	           } 
+	         }
 	         counter --;
-	         index ++;  
+	         index ++;
 	        } 
 	        if(flag)
 	        {
@@ -101,21 +144,34 @@ public class ServerRequests extends HttpServlet {
 	        	int temp =server_capacity; //30
 	        	if(difference>=0 && count >server_capacity) {
 	        		serverMap.replace((String)mapElement.getKey(),temp-server_capacity);//30;
+	        		try {
+	       			 Thread.currentThread().sleep(1000);
+	       			  }
+	       			  catch(InterruptedException e) {}
+	        		LOGGER.log(Level.FINE,"Server Allocated " +mapElement.getKey() + " " +  mapElement.getValue());
 	        		System.out.println("Server Allocated " +mapElement.getKey() + " " +  mapElement.getValue());
 	        	}
 	        	else if(count <= server_capacity) 
 	        	{     
 	        		serverMap.replace((String)mapElement.getKey(),server_capacity-count); //30;
-	   		         
+	   		         LOGGER.log(Level.FINE,"Server Allocated "+mapElement.getKey() + " " +  mapElement.getValue());
 	        		System.out.println("Server Allocated "+mapElement.getKey() + " " +  mapElement.getValue());
 	        		
 	        	}
+	        	temperature += 5; //turning on a server will heat up data centre
+				if (temperature > maximum_temp) {
+					while (temperature > minimum_temp) {
+						temperature -= 5; //must cool off before running any more jobs
+						System.out.println(temperature);
+					}
+				}
 	        	count =difference ;//20
 	        	}
 	        }
 	       
 	         System.out.println("Servers being used :");
 	         displayServerDetails();
+	         thread.stop();
 	         
 		}
 		//if requests more than current server capacity, add new server
@@ -131,14 +187,15 @@ public class ServerRequests extends HttpServlet {
 				{
 				 //60-150 =90
 				if (difference <= max_threshold_perserver) //90<30 ,60<30
-				{ 
+				{   LOGGER.log(Level.ALL,"capacity available in new server added");
 					serverMap.put(server_nm.concat(i.toString()),difference);
 					flag =false;
 				}
 				else 
 				{ 
 						int capacity_created= Math.abs(max_threshold_perserver -difference); //90-30 =60 ,30-60 =30
-				       serverMap.put(server_nm.concat(i.toString()),max_threshold_perserver); //30
+						LOGGER.log(Level.ALL,"capacity unavailable in new server added");
+						serverMap.put(server_nm.concat(i.toString()),max_threshold_perserver); //30
 				       difference =capacity_created; //60,30
 						
 					}
@@ -153,30 +210,43 @@ public class ServerRequests extends HttpServlet {
 		}
 		public void deleteServer (int count)
 		{
+			
 			if(count <total_load) 
-			{
+			{ 
+				ArrayList<String> toBeRemoved = new ArrayList<String>();
 				Set<String> keys = serverMap.keySet();
 		        for(String k:keys){
 		        	int capacity=serverMap.get(k);
 		        	if(count <total_load- capacity) {
-		        		serverMap.remove(k);
+		        		LOGGER.log(Level.ALL,"Remove server");
+		        		toBeRemoved.add(k); //can't remove from a map within a loop, so must remove later
+		        		if (temperature > minimum_temp) {
+		    				temperature -= 5; //turning off a server reduces heat, but can't go below minimum
+		    			}
 		        	}
 		      
 		        }
+		        toBeRemoved.forEach(t -> serverMap.remove(t));
 		        System.out.println(" Server Deleted ");
 		        displayServerDetails();
 			}
 		}
 		public void displayServerDetails()
 		{
+			//No need to test this, all it does is print
 			for (Map.Entry mapElement : serverMap.entrySet()) { //int server_capacity
 		        System.out.println (mapElement.getKey() + " " + mapElement.getValue());
 				 }
 		}
+		
 	 
 		public static void main(String[] args) {
-			// TODO Auto-generated method stub
-
+			
+		}
+		@Override
+		public void run() {
+			// No need to test this, all it does is print
+			System.out.println("MY class is running");
 		}
 
 }
