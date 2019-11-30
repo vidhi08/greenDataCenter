@@ -32,11 +32,10 @@ public class ServerRequests extends HttpServlet implements Runnable {
     Duration responsetime;
     int max_threshold_perserver = 30;
     HashMap<String, String> serverObject = new HashMap<>();
-
+    //serverMap with key as server name and value as its capacity
     static Map < String, Integer > serverMap = new LinkedHashMap < String, Integer > ();
-    //static Map<String,Integer> intialserverMap= new HashMap<String,Integer>();
     private final static Logger LOGGER = Logger.getLogger(ServerRequests.class.getName());
-    String server_nm = "192.11.12";
+    String server_nm = "192.11.12.";
     int total_load = 0;
     Integer i = 3;
     static {
@@ -47,9 +46,10 @@ public class ServerRequests extends HttpServlet implements Runnable {
     public ServerRequests() {
         checktotalload();
     }
+    /* this method checks the total capacity of all the servers combined */
     public int checktotalload() {
 
-        for (Map.Entry mapElement: serverMap.entrySet()) { //int server_capacity
+        for (Map.Entry mapElement: serverMap.entrySet()) { 
 
             total_load = total_load + ((int) mapElement.getValue());
             LOGGER.log(Level.FINE, "checking the server load");
@@ -58,47 +58,44 @@ public class ServerRequests extends HttpServlet implements Runnable {
     }
 
     protected void doPost(HttpServletRequest request,
-        HttpServletResponse response) throws ServletException, IOException {
-        Runnable runnable = new ServerRequests();
-        Thread thread = new Thread(runnable);
-        thread.start();
-        response.setContentType("text/html;charset=UTF-8");
-        start_time = Instant.now();
-        int count = Integer.parseInt(request.getParameter("server_count"));
-        LOGGER.log(Level.FINE, "number of servers active" + count);
-        try {
-            Thread.currentThread().sleep(1000);
-        } catch (InterruptedException e) {}
-        for (Integer i = 0; i < count; i++) {
-            stack.add("Job " + i.toString());
-        }
-        System.out.println(count + " jobs on the stack");
-        System.out.println("server count" + count);
-        System.out.println("server time " + start_time);
-        addServer(count);
-        getServer(count);
-        end_time = Instant.now();
-        responsetime = Duration.between(start_time, end_time);
-        for (Integer i = count - 1; i > -1; i--) {
-            stack.remove(i);
-        }
+    	HttpServletResponse response) throws ServletException, IOException
+    {
+    	Runnable runnable = new ServerRequests();
+    	Thread thread = new Thread(runnable);
+    	thread.start();
+    	response.setContentType("text/html;charset=UTF-8");
+    	start_time = Instant.now();
+    	int server_count = Integer.parseInt(request.getParameter("server_count"));
+    	LOGGER.log(Level.FINE, "number of servers active" + server_count);
+    	try {
+    		Thread.currentThread().sleep(1000);
+    	} catch (InterruptedException e) {}
+    	for (Integer i = 0; i < server_count; i++) {
+    		stack.add("Job " + i.toString());
+    	}
+    	System.out.println(server_count + " jobs on the stack");
+    	System.out.println("server start time " + " " + start_time);
+    	addServer(server_count);
+    	getServer(server_count);
+    	end_time = Instant.now();
+    	responsetime = Duration.between(start_time, end_time);
+    	
+    	for (Integer i = server_count - 1; i > -1; i--) {
+    		stack.remove(i);
+    	}
         System.out.println("Stack empty");
         try {
             Thread.currentThread().sleep(1000);
         } catch (InterruptedException e) {}
         LOGGER.log(Level.FINE, "Time taken: "+ responsetime.toMillis() +" milliseconds");
-        System.out.println("Time taken: "+ responsetime.toMillis() +" milliseconds");
-        thread.stop();
-        /*
-         * HttpSession session =request.getSession(true); String count =(String)
-         * session.getAttribute("server_count"); System.out.println("server count"
-         * +count);
-         */
-		 request.setAttribute("start_time", start_time);
+        
+         System.out.println("Time taken: "+ responsetime.toMillis() +" milliseconds");
+         thread.stop();
+         request.setAttribute("start_time", start_time);
 		 request.setAttribute("end_time", end_time);
 		 request.setAttribute("responsetime", responsetime.toMillis());
-		 request.setAttribute("request_count", count);
-		 request.setAttribute("max_threshold_perserver", max_threshold_perserver);
+		 request.setAttribute("request_count", server_count);
+		 request.setAttribute("max_threshold_perserver", max_threshold_perserver); 
 		 int j = 0;
 		 Iterator it = serverMap.entrySet().iterator();
 		 List<String> serverNames = new ArrayList<String>();
@@ -109,14 +106,15 @@ public class ServerRequests extends HttpServlet implements Runnable {
 	        System.out.println(pair.getKey() + " = " + pair.getValue());
 	        it.remove(); // avoids a ConcurrentModificationException
 		 }
-
+        
 		 request.setAttribute("serverMap", serverNames);
 		 request.setAttribute("server_count", j);
 		 request.getRequestDispatcher("/flow.jsp").forward(request,response);
     }
 
     public void getServer(int count) {
-        System.out.println(temperature);
+        
+    	System.out.println("current temperature " +temperature);
         boolean flag = true;
         int counter;
         int index = 0;
@@ -134,7 +132,6 @@ public class ServerRequests extends HttpServlet implements Runnable {
                 if (count < server_capacity)
 
                 {
-                    LOGGER.log(Level.ALL, " server assigned " + server_name);
                     System.out.println(" server assigned " + server_name);
                     serverMap.replace(server_name, Math.abs(server_capacity - count));
                     flag = false;
@@ -148,15 +145,13 @@ public class ServerRequests extends HttpServlet implements Runnable {
             int difference = 0;
             for (Map.Entry mapElement: serverMap.entrySet()) {
                 int server_capacity = (int) mapElement.getValue();
-                difference = Math.abs(count - server_capacity); //50-30=20; 20-30=10;
-                int temp = server_capacity; //30
+                difference = Math.abs(count - server_capacity); 
+                int temp = server_capacity; 
                 if (difference >= 0 && count > server_capacity) {
-                    serverMap.replace((String) mapElement.getKey(), temp - server_capacity); //30;
-                    LOGGER.log(Level.FINE, "Server Allocated " + mapElement.getKey() + " " + mapElement.getValue());
+                    serverMap.replace((String) mapElement.getKey(), temp - server_capacity); 
                     System.out.println("Server Allocated " + mapElement.getKey() + " " + mapElement.getValue());
                 } else if (count <= server_capacity) {
-                    serverMap.replace((String) mapElement.getKey(), server_capacity - count); //30;
-                    LOGGER.log(Level.FINE, "Server Allocated " + mapElement.getKey() + " " + mapElement.getValue());
+                    serverMap.replace((String) mapElement.getKey(), server_capacity - count); 
                     System.out.println("Server Allocated " + mapElement.getKey() + " " + mapElement.getValue());
 
                 }
@@ -164,10 +159,10 @@ public class ServerRequests extends HttpServlet implements Runnable {
                 if (temperature > maximum_temp) {
                     while (temperature > minimum_temp) {
                         temperature -= 5; //must cool off before running any more jobs
-                        System.out.println(temperature);
+                        System.out.println( "temperature changed " + temperature);
                     }
                 }
-                count = difference; //20
+                count = difference; 
             }
         }
 
@@ -181,19 +176,19 @@ public class ServerRequests extends HttpServlet implements Runnable {
         boolean flag = true;
         if (count > total_load) //
         {
-            int difference = Math.abs(total_load - count); //90
+            int difference = Math.abs(total_load - count); 
             while (flag) {
-                //60-150 =90
-                if (difference <= max_threshold_perserver) //90<30 ,60<30
+                
+                if (difference <= max_threshold_perserver) 
                 {
                     LOGGER.log(Level.ALL, "capacity available in new server added");
                     serverMap.put(server_nm.concat(i.toString()), difference);
                     flag = false;
                 } else {
-                    int capacity_created = Math.abs(max_threshold_perserver - difference); //90-30 =60 ,30-60 =30
+                    int capacity_created = Math.abs(max_threshold_perserver - difference); 
                     LOGGER.log(Level.ALL, "capacity unavailable in new server added");
-                    serverMap.put(server_nm.concat(i.toString()), max_threshold_perserver); //30
-                    difference = capacity_created; //60,30
+                    serverMap.put(server_nm.concat(i.toString()), max_threshold_perserver); 
+                    difference = capacity_created; 
 
                 }
                 i++;
