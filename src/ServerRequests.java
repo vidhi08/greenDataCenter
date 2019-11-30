@@ -37,7 +37,7 @@ public class ServerRequests extends HttpServlet implements Runnable {
     private final static Logger LOGGER = Logger.getLogger(ServerRequests.class.getName());
     String server_nm = "192.11.12.";
     int total_load = 0;
-    Integer i = 3;
+    
     static {
         serverMap.put("192.11.12.0", 30);
         serverMap.put("192.11.12.1", 30);
@@ -173,6 +173,7 @@ public class ServerRequests extends HttpServlet implements Runnable {
     //if requests more than current server capacity, add new server
     // if request less than current server capacity , remove the servers.
     public void addServer(int count) {
+    	Integer i = 3;
         boolean flag = true;
         if (count > total_load) //
         {
