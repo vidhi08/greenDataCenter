@@ -96,6 +96,7 @@ public class ServerRequests extends HttpServlet implements Runnable {
 		 request.setAttribute("responsetime", responsetime.toMillis());
 		 request.setAttribute("request_count", server_count);
 		 request.setAttribute("max_threshold_perserver", max_threshold_perserver); 
+		 request.setAttribute("temperature", temperature);
 		 int j = 0;
 		 Iterator it = serverMap.entrySet().iterator();
 		 List<String> serverNames = new ArrayList<String>();

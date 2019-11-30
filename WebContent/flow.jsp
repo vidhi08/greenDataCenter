@@ -144,6 +144,7 @@
 				  	</div>
 				</c:forEach>
 				Stack empty</br>
+				Current Temperature: ${temperature} degree</br>
 				Time taken: ${responsetime} milliseconds</br>
 			</div>
 		</div>
