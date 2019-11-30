@@ -58,7 +58,8 @@
     			opacity: 0;
 			}
 			.main_holder {
-				position: absolute;
+				display: inline-block;
+				position: relative;
 			    border-style: dotted;
 			    border-color: aquamarine;
 			    width: 800px;
@@ -88,29 +89,62 @@
 			    border-color: wheat;
 			    border-style: double;
 			}
+			.Initial_servers {
+				background: ghostwhite;
+			    height: 30px;
+			    vertical-align: middle;
+			    line-height: 30px;
+			    text-align: center;
+			    font-weight: bold;
+			    border-style: ridge;
+			    border-top-style: none;
+			}
+			#log_holder {
+				width: 200px;
+			    position: relative;
+			    display: inline-block;
+			    border-style: groove;
+			    padding: 10px;
+			}
 		</style>
 	</head>
 	<body>
-		<div class = "main_holder">
-			<div class = "request_time">Time of Response: ${responsetime} milliseconds</div>
-			<div class = "server_threshold">Maximum Threshold of Servers: ${max_threshold_perserver}</div>
-			<div class = "request">Request Received: ${request_count}</div>
-			<div class = "Num_servers">Number of Servers Running: ${server_count}</div>
-			<div class = "server_holder">
+		<div style = "display: block;overflow: hidden;width: 1600px;position: absolute;">
+			<div class = "main_holder">
+				<div class = "request_time">Time of Response: ${responsetime} milliseconds</div>
+				<div class = "server_threshold">Maximum Threshold of Servers: ${max_threshold_perserver}</div>
+				<div class = "request">Request Received: ${request_count}</div>
+				<div class = "Num_servers">Number of Servers Running: ${server_count}</div>
+				<div class = "Initial_servers">Initial Server On: 2</div>
+				<div class = "server_holder">
+					<c:forEach var="serverName" items="${serverMap}" varStatus="loop">
+						<div class="server" id="${loop.index}"> 
+					  	<div style="width: 100px;height: 118px;float: left;margin-right: 10px;">
+						  	  <div class="server_blocks"></div>
+							  <div class="server_name"><c:out value="${serverName}"/></div>
+							  <div class="server_blocks"></div>
+					  	</div>
+					  	<div style="width: 20px;height: 118px;float: left;">
+					  		<div id = "green_${loop.index}" style="width: 100%;height: 0px;background: lawngreen;margin-top: 10px; opacity: 0"></div>
+					  		<div id = "yellow_${loop.index}" style="width: 100%;height: 0px;background: yellow;margin-top: 20px; opacity: 0"></div>
+					  		<div id = "red_${loop.index}" style="width: 100%;height: 0px;background: red;margin-top: 20px; opacity: 0"></div>
+					  	</div>
+					  </div>
+					</c:forEach>
+				</div>
+			</div>
+			<div id="log_holder">
+				Project is running</br>
+				${request_count} jobs on the stack</br>
+				server time ${start_time}</br>
+				new Server added</br>
 				<c:forEach var="serverName" items="${serverMap}" varStatus="loop">
-					<div class="server" id="${loop.index}"> 
-				  	<div style="width: 100px;height: 118px;float: left;margin-right: 10px;">
-					  	  <div class="server_blocks"></div>
-						  <div class="server_name"><c:out value="${serverName}"/></div>
-						  <div class="server_blocks"></div>
+					<div> 
+				  		Server Allocated <c:out value="${serverName}"/></br>
 				  	</div>
-				  	<div style="width: 20px;height: 118px;float: left;">
-				  		<div id = "red_${loop.index}" style="width: 100%;height: 20px;background: red;margin-top: 10px;"></div>
-				  		<div id = "yellow_${loop.index}" style="width: 100%;height: 20px;background: yellow;margin-top: 20px;"></div>
-				  		<div id = "green_${loop.index}" style="width: 100%;height: 20px;background: lawngreen;margin-top: 20px;"></div>
-				  	</div>
-				  </div>
 				</c:forEach>
+				Stack empty</br>
+				Time taken: ${responsetime} milliseconds</br>
 			</div>
 		</div>
 		<script>
@@ -132,7 +166,8 @@
 					$("#"+colorArr[color]+"_"+index).css({opacity : 0});
 					$("#"+colorArr[color]+"_"+index).animate({
 					    opacity: 1,
-					  }, responseTime/2, function() {
+					    height: '20px'
+					  }, 1100, function() {
 						  color++;
 						  if (color < colorArr.length){
 							colorAnimation(index, color)

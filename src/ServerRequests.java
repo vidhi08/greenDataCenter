@@ -94,6 +94,8 @@ public class ServerRequests extends HttpServlet implements Runnable {
          * session.getAttribute("server_count"); System.out.println("server count"
          * +count);
          */
+		 request.setAttribute("start_time", start_time);
+		 request.setAttribute("end_time", end_time);
 		 request.setAttribute("responsetime", responsetime.toMillis());
 		 request.setAttribute("request_count", count);
 		 request.setAttribute("max_threshold_perserver", max_threshold_perserver);
