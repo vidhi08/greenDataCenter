@@ -58,7 +58,7 @@
     			opacity: 0;
 			}
 			.main_holder {
-				display: inline-block;
+				display: inline-table;
 				position: relative;
 			    border-style: dotted;
 			    border-color: aquamarine;
@@ -100,16 +100,16 @@
 			    border-top-style: none;
 			}
 			#log_holder {
-				width: 200px;
+				width: 210px;
 			    position: relative;
-			    display: inline-block;
+			    display: inline-table;
 			    border-style: groove;
-			    padding: 10px;
+			    padding: 15px;
 			}
 		</style>
 	</head>
 	<body>
-		<div style = "display: block;overflow: hidden;width: 1600px;position: absolute;">
+		<div style = "display: table;overflow: hidden;width: 1600px;position: absolute;">
 			<div class = "main_holder">
 				<div class = "request_time">Time of Response: ${responsetime} milliseconds</div>
 				<div class = "server_threshold">Maximum Threshold of Servers: ${max_threshold_perserver}</div>
